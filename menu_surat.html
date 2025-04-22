@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengolahan Surat Keterangan</title>
+    <style>
+body {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    height: 100vh;
+    font-family: 'Arial', sans-serif;
+    background: #969899;
+    color: #d3d3d3;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px;
+    background: #313336;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header div {
+    flex: 1;
+    text-align: center;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+	margin-left: 30px;
+
+}
+
+.form-section {
+    flex: 0.35;
+    padding: 20px;
+    background: #c5c6c7;
+    border-right: 3px solid #1f1f1f;
+    border-radius: 10px 0 0 10px;
+    box-shadow: inset -5px 0 5px -5px rgba(0, 0, 0, 0.1);
+}
+
+#popupKonfirmasi h3 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+#popupKonfirmasi p {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+#popupKonfirmasi button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#popupKonfirmasi button:hover {
+    opacity: 0.8;
+}
+
+#popupKonfirmasi button:first-of-type {
+    background-color: #28a745;
+    color: white;
+}
+
+#popupKonfirmasi button:last-of-type {
+    background-color: #dc3545;
+    color: white;
+}
+
+h2 {
+    margin: 0 0 20px;
+    font-family: 'Georgia', serif;
+    color: #072d42;
+    font-weight: 600;
+}
+
+.top-section {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px;
+    background: #1c1c1c;
+    border-radius: 10px;
+    margin: 2px 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-section {
+    flex: 0.25;
+    padding: 20px;
+    background: #c5c6c7;
+    border-right: 3px solid #1f1f1f;
+    border-radius: 10px 0 0 10px;
+    box-shadow: inset -5px 0 5px -5px rgba(0, 0, 0, 0.1);
+}
+
+.info-section {
+    flex: 1;
+    height: auto;
+    padding: 4px 20px;
+	top: 8px;
+    background: #ebebeb;
+    font-size: 1em;
+    overflow-x: auto;
+    border-radius: 0 10px 10px 0;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+#searchBox {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #1f1f1f;
+    border-radius: 5px;
+    background-color: #e6ecf0;
+    color: #2e2e2e;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
+
+#searchBox:focus {
+    border-color: #FF;
+    box-shadow: 0px 0px 5px rgba(0, 122, 204, 0.5);
+}
+
+#clearBtn {
+    background-color: #eb2848;
+    color: #FFF;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+#clearBtn:hover {
+    background-color: #a60520;
+}
+
+#itemList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+#itemList li {
+    padding: 12px;
+    border-bottom: 1px solid #033345;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    color: #171717;
+}
+
+#itemList li:hover {
+    background-color: #f5efd5;
+    transform: scale(1.02);
+}
+
+.data-table {
+    margin-top: 20px;
+    border-collapse: collapse;
+    width: 100%;
+    cursor: pointer;
+}
+
+.data-table, .data-table th, .data-table td {
+    border: 1px solid #212020;
+    padding: 12px;
+    text-align: left;
+    white-space: nowrap;
+    color: #212020;
+}
+
+.data-table th {
+    background-color: #193d4d;
+    color: #d3d3d3;
+    font-weight: bold;
+}
+
+.data-table tr.selected {
+    background-color: #e8deb3;
+    color: #43474a;
+}
+
+.data-table th:nth-child(1),
+.data-table th:nth-child(13),
+.data-table td:nth-child(1),
+.data-table td:nth-child(13) {
+    display: none;
+}
+
+.data-table th {
+    text-align: center;
+}
+
+.data-table td {
+    text-align: center;
+}
+
+.data-table td:nth-child(5) {
+    text-align: left;
+}
+
+.jenis-surat-selected {
+    background-color: #90ee90;
+    color: #43474a;
+    font-weight: bold;
+    border: 2px solid #00bbff;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+button {
+    background-color: #094f69;
+    color: #43474a;
+    border: none;
+    padding: 12px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 1rem;
+}
+
+button:hover {
+    background-color: #3b627d;
+    transform: scale(1.05);
+}
+
+.btn-buat-surat {
+    background-color: #e8b425;
+    color: #FFF;
+    padding: 12px 20px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    font-weight: bold;
+    color: black;
+}
+
+.btn-buat-surat:hover {
+    background-color: #f5cc5b;
+    color: black;
+}
+
+.btn-buat-surat.disabled {
+    background-color: #636363;
+    color: #d3d3d3;
+    pointer-events: none;
+    opacity: 1;
+}
+
+@media screen and (max-width: 768px) {
+    .top-section {
+        flex-direction: column;
+    }
+    .header {
+        flex-wrap: wrap;
+    }
+}
+
+#popupForm {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    text-align: center;
+    color: #333;
+}
+
+#popupBackground {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 10px 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#submitBtn {
+    background-color: #28a745;
+    color: white;
+}
+
+#cancelBtn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: center;
+    gap: 0px;
+    margin-top: 10px;
+}
+
+.icon-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+ 0;
+    margin: 0 1px;
+}
+
+.icon sorrows {
+    opacity: 0.6;
+    transition: all 0.3s ease;
+    transform: scale(icing);
+    cursor: pointer;
+}
+
+.icon-wrapper img {
+    opacity: 0.6;
+    transition: all 0.3s ease;
+    transform: scale(1);
+    cursor: pointer;
+}
+
+
+.icon-wrapper img:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
+    filter: drop-shadow(0 2px 5px rgba(255, 255, 255, 0.3));
+}
+
+.icon-label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    line-height: 1;
+    transition: color 0.3s ease;
+}
+
+.icon-wrapper img:hover + .icon-label {
+    color: #595959;
+}
+
+.icon-wrapper .btn-delete {
+    filter: grayscale(100%) brightness(0.8) sepia(1) hue-rotate(-50deg) saturate(5);
+}
+
+.icon-wrapper .ico2 {
+    filter: grayscale(100%) brightness(0.8) sepia(1) hue-rotate(-50deg) saturate(5);
+}
+
+.icon-wrapper .btn-delete:hover {
+    filter: none;
+    opacity: 1;
+    transform: scale(1.1);
+    box-shadow: 0 0 5px 2px rgba(0, 0, 7, 0.8);
+}
+
+.icon-wrapper .ico2:hover {
+    filter: none;
+    opacity: 1;
+    transform: scale(1.1);
+    box-shadow: 0 0 5px 2px rgba(0, 0, 7, 0.8);
+}
+
+#btn-back {
+    padding: 15px;
+}
+
+.icon:hover {
+    opacity: 1.8;
+}
+
+.tekback {
+    position: relative;
+    left: -2px;
+    right: 120px;
+    top: -22px;
+    font-size: 21px;
+    font-weight: bold;
+    justify-content: center;
+    align-items: center;
+}
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+<div class="header">
+    <div class="header-left">
+        <img src="surat/1/back.png" id="btn-back" alt="Kembali" class="ico3" width="30" height="30" style="cursor: pointer" onclick="goBack()">
+        <span class="tekback">BACK</span>
+    </div>
+    <div class="header-left"></div>
+    <div class="toolbar">
+        <div class="icon-wrapper">
+            <img src="surat/1/new.png" class="ico2" alt="Tambah" width="30" height="30" onclick="openPopup()">
+            <div class="icon-label">Tambah</div>
+        </div>
+        <div class="icon-wrapper">
+            <img src="surat/1/edit.png" class="ico2" alt="Edit" width="30" height="30" onclick="editData()">
+            <div class="icon-label">Edit</div>
+        </div>
+        <div class="icon-wrapper">
+            <img src="surat/1/edit.png" class="btn-delete" alt="Hapus" width="30" height="30" onclick="deleteData()">
+            <div class="icon-label">Delete</div>
+        </div>
+    </div>
+    <div class="header-right">
+        <button class="btn-buat-surat disabled" id="prosesSuratBtn">PROSES SURAT</button>
+    </div>
+    <div class="header-left"></div>
+    <div class="header-left"></div>
+    <div class="header-left"></div>
+</div>
+
+<div id="popupBackground" onclick="closePopup()"></div>
+<div id="popupForm">
+    <h3>Masukkan Data Penduduk</h3>
+    <input type="text" id="kode" placeholder="Kode" required><br><br>
+    <input type="text" id="kk" placeholder="KK" required><br><br>
+    <input type="text" id="nik" placeholder="NIK" required><br><br>
+    <input type="text" id="nama" placeholder="Nama" required><br><br>
+    <input type="text" id="tempatLahir" placeholder="Tempat Lahir" required><br><br>
+    <input type="text" id="tglLahir" placeholder="dd/mm/yyyy" required><br><br>
+    <input type="text" id="status" placeholder="Status" required><br><br>
+    <input type="text" id="jenisKelamin" placeholder="Jenis Kelamin" required><br><br>
+    <input type="text" id="pekerjaan" placeholder="Pekerjaan" required><br><br>
+    <input type="text" id="alamatDusun" placeholder="Alamat Dusun" required><br><br>
+    <select id="desa">
+        <option value="Bugak Krueng">Bugak Krueng</option>
+        <option value="Abeuk Jaloh">Abeuk Jaloh</option>
+        <option value="DESA_C">Desa C</option>
+    </select><br><br>
+    <button id="submitBtn" onclick="submitData()">Kirim</button>
+    <button id="cancelBtn" onclick="closePopup()">Batal</button>
+</div>
+
+<div id="popupKonfirmasi" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); z-index: 1000; text-align: center;">
+    <h3>INFORMASI</h3>
+    <p>Pastikan Nama yang dipilih sekarang adalah <b>SUAMI</b></p>
+    <div>
+        <button onclick="lanjutkan()">LANJUTKAN</button>
+        <button onclick="batal()">BATAL</button>
+    </div>
+</div>
+
+<div id="popupBackground" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
+
+<div class="top-section">
+    <div class="form-section">
+        <div class="search-container">
+            <input type="text" id="searchBox" placeholder="Cari jenis surat..." />
+            <button id="clearBtn" onclick="clearSearch()">Clear</button>
+        </div>
+        <ul id="itemList">
+        </ul>
+        <div id="formContainer">
+        </div>
+    </div>
+
+    <div class="info-section">
+        <table class="data-table" id="data-table">
+            <thead>
+                <tr>
+                    <th>Aksi</th>
+                    <th>Kode</th>
+                    <th>KK</th>
+                    <th>NIK</th>
+                    <th>Nama</th>
+                    <th>Tempat Lahir</th>
+                    <th>Tanggal Lahir</th>
+                    <th>Status</th>
+                    <th>Gender</th>
+                    <th>Pekerjaan</th>
+                    <th>Alamat Dusun</th>
+                    <th>Desa</th>
+                    <th>Pilih</th>
+                </tr>
+            </thead>
+            <tbody id="info-container">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const suratLinks = {
+    'Suket Tidak Mampu/ Miskin V1': 'surat/tidakmampu1.html',
+    'Suket Tidak Mampu/ Miskin V2': 'surat/tidakmampu2.html',
+    'Suket kematian': 'surat/kematian1.html',
+    'Suket kematian/ ada pelapor': 'surat/kematian2.html',
+    'Suket Pindah Sendiri': 'surat/pindah1.html',
+    'Suket Pindah Sekeluarga': 'surat/pindah2.html',
+    'Suket Mandah': 'surat/mandah.html',
+    'Suket Telah Menikah': 'surat/menikah.html',
+    'Suket Cerai': 'surat/cerai.html',
+    'Suket Domisili': 'surat/domisili.html',
+};
+
+const jenisSurat = [
+    'Suket Tidak Mampu/ Miskin V1',
+    'Suket Tidak Mampu/ Miskin V2',
+    'Suket kematian',
+    'Suket kematian/ ada pelapor',
+    'Suket Pindah Sendiri',
+    'Suket Pindah Sekeluarga',
+    'Suket Mandah',
+    'Suket Telah Menikah',
+    'Suket Cerai',
+    'Suket Domisili',
+];
+
+const scriptURLs = {
+    "Bugak Krueng": "https://script.google.com/macros/s/AKfycbypwCTM0KMxwh-vX6J91f_NcfdTglUNp-kAhg4ZZQqy6nmow42C2xLJNpHdJmF9qO_Zmg/exec",
+    "Abeuk Jaloh": "",
+    "DESA_C": "URL_GAS_DESA_C"
+};
+
+const searchBox = document.getElementById('searchBox');
+const itemList = document.getElementById('itemList');
+const infoContainer = document.getElementById('info-container');
+
+function displayList(items) {
+    itemList.innerHTML = '';
+    items.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        li.onclick = () => selectItem(item);
+        itemList.appendChild(li);
+    });
+}
+
+displayList(jenisSurat);
+
+searchBox.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const filteredItems = jenisSurat.filter(item => item.toLowerCase().includes(searchTerm));
+    displayList(filteredItems);
+});
+
+function clearSearch() {
+    searchBox.value = '';
+    displayList(jenisSurat);
+    searchBox.focus();
+}
+
+function selectItem(item) {
+    displayForm(item);
+    highlightSelectedItem(item);
+}
+
+function highlightSelectedItem(selectedItem) {
+    const listItems = itemList.querySelectorAll('li');
+    listItems.forEach(li => {
+        if (li.textContent === selectedItem) {
+            li.style.backgroundColor = '#e8deb3';
+            li.style.color = '#000';
+        } else {
+            li.style.backgroundColor = '';
+            li.style.color = '';
+        }
+    });
+}
+
+function displayForm(jenisSurat) {
+    const prosesSuratBtn = document.getElementById('prosesSuratBtn');
+    prosesSuratBtn.classList.remove('disabled');
+    prosesSuratBtn.onclick = () => generateSurat(jenisSurat);
+}
+
+let data = [];
+
+async function fetchDataFromSheet(desa) {
+    const scriptURL = scriptURLs[desa];
+    try {
+        const response = await fetch(scriptURL, { method: 'GET' });
+        const result = await response.json();
+        if (result.status === 'Success') {
+            return result.data.map(item => JSON.stringify(item));
+        }
+        return [];
+    } catch (error) {
+        console.error(`Error fetching data from ${desa}:`, error);
+        return [];
+    }
+}
+
+async function syncData() {
+    try {
+        let selectedData = JSON.parse(localStorage.getItem('selectedPendudukData')) || [];
+        let localData = JSON.parse(localStorage.getItem('pendudukData')) || [];
+
+        console.log('Selected Data:', selectedData);
+        console.log('Local Data:', localData);
+
+        localData = localData.filter(item => {
+            try {
+                JSON.parse(item);
+                return true;
+            } catch {
+                return false;
+            }
+        });
+
+        data = selectedData.length > 0 ? selectedData.map(item => JSON.stringify(item)) : localData;
+
+        if (data.length === 0) {
+            for (const desa in scriptURLs) {
+                const sheetData = await fetchDataFromSheet(desa);
+                data = [...data, ...sheetData];
+            }
+        }
+
+        console.log('Final Data:', data);
+        populateTable();
+
+        saveToLocalStorage();
+    } catch (error) {
+        console.error('Error in syncData:', error);
+        infoContainer.innerHTML = '<tr><td colspan="13">Gagal memuat data. Silakan refresh halaman.</td></tr>';
+    }
+}
+
+function populateTable() {
+    infoContainer.innerHTML = '';
+    if (data.length === 0) {
+        infoContainer.innerHTML = '<tr><td colspan="13">Tidak ada data penduduk tersedia.</td></tr>';
+        return;
+    }
+
+    data.forEach((item, index) => {
+        try {
+            const parsedItem = JSON.parse(item);
+            const row = `<tr onclick="selectPenduduk(${index})">
+                <td><input type="radio" name="selectPenduduk" value="${index}"></td>
+                <td>${parsedItem.kode || ''}</td>
+                <td>${parsedItem.kk || ''}</td>
+                <td>${parsedItem.nik || ''}</td>
+                <td>${parsedItem.nama || ''}</td>
+                <td>${parsedItem.tempatLahir || parsedItem.tempatlahir || ''}</td>
+                <td>${parsedItem.tglLahir ? formatDate(parsedItem.tglLahir) : (parsedItem.tgllahir ? formatDate(parsedItem.tgllahir) : '')}</td>
+                <td>${parsedItem.status || ''}</td>
+                <td>${parsedItem.jenisKelamin || parsedItem.jeniskelamin || ''}</td>
+                <td>${parsedItem.pekerjaan || ''}</td>
+                <td>${parsedItem.alamatDusun || parsedItem.alamatdusun || ''}</td>
+                <td>${parsedItem.desa || ''}</td>
+                <td><input type="checkbox" class="select-row"></td>
+            </tr>`;
+            infoContainer.innerHTML += row;
+        } catch (error) {
+            console.error('Error parsing item:', item, error);
+        }
+    });
+    console.log('Table populated with', data.length, 'items');
+}
+
+function openPopup() {
+    document.getElementById('popupForm').style.display = 'block';
+    document.getElementById('popupBackground').style.display = 'block';
+}
+
+function closePopup() {
+    document.getElementById('popupForm').style.display = 'none';
+    document.getElementById('popupBackground').style.display = 'none';
+}
+
+function submitData() {
+    try {
+        const indexToEdit = document.getElementById('submitBtn').getAttribute('data-edit-index');
+        const isEdit = indexToEdit !== null;
+
+        const dataEntry = {
+            kode: document.getElementById('kode').value,
+            kk: document.getElementById('kk').value,
+            nik: document.getElementById('nik').value,
+            nama: document.getElementById('nama').value,
+            tempatLahir: document.getElementById('tempatLahir').value,
+            tglLahir: document.getElementById('tglLahir').value,
+            status: document.getElementById('status').value,
+            jenisKelamin: document.getElementById('jenisKelamin').value,
+            pekerjaan: document.getElementById('pekerjaan').value,
+            alamatDusun: document.getElementById('alamatDusun').value,
+            desa: document.getElementById('desa').value
+        };
+
+        const desaID = dataEntry.desa;
+        const scriptURL = scriptURLs[desaID];
+
+        if (!scriptURL) {
+            alert("URL untuk desa tidak ditemukan");
+            return;
+        }
+
+        const methodData = isEdit ? { action: 'edit', data: dataEntry } : dataEntry;
+
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(methodData)
+        }).then(() => {
+            if (isEdit) {
+                alert('Data berhasil diperbarui!');
+                data[indexToEdit] = JSON.stringify(dataEntry);
+                document.getElementById('submitBtn').removeAttribute('data-edit-index');
+            } else {
+                alert('Data berhasil ditambahkan!');
+                addToLocalJSON(dataEntry);
+            }
+
+            populateTable();
+            saveToLocalStorage();
+            closePopup();
+        }).catch(error => {
+            console.error('Gagal kirim data:', error);
+            alert('Gagal mengirim data ke server.');
+        });
+
+    } catch (error) {
+        console.error('Error di submitData:', error);
+        alert('Gagal memproses data.');
+    }
+}
+
+function editData() {
+    try {
+        const selected = document.querySelector('input[name="selectPenduduk"]:checked');
+        if (!selected) {
+            alert('Silakan pilih data yang ingin diedit.');
+            return;
+        }
+
+        const index = parseInt(selected.value);
+        const dataToEdit = JSON.parse(data[index]);
+
+        document.getElementById('kode').value = dataToEdit.kode || '';
+        document.getElementById('kk').value = dataToEdit.kk || '';
+        document.getElementById('nik').value = dataToEdit.nik || '';
+        document.getElementById('nama').value = dataToEdit.nama || '';
+        document.getElementById('tempatLahir').value = dataToEdit.tempatLahir || dataToEdit.tempatlahir || '';
+        const tglLahirAsli = dataToEdit.tglLahir || dataToEdit.tgllahir || '';
+        const tglFormatted = formatDateInput(tglLahirAsli);
+        document.getElementById('tglLahir').value = tglFormatted;
+        document.getElementById('status').value = dataToEdit.status || '';
+        document.getElementById('jenisKelamin').value = dataToEdit.jenisKelamin || dataToEdit.jeniskelamin || '';
+        document.getElementById('pekerjaan').value = dataToEdit.pekerjaan || '';
+        document.getElementById('alamatDusun').value = dataToEdit.alamatDusun || dataToEdit.alamatdusun || '';
+        document.getElementById('desa').value = dataToEdit.desa || '';
+
+        document.getElementById('submitBtn').setAttribute('data-edit-index', index);
+
+        openPopup();
+    } catch (error) {
+        console.error('Error di editData:', error);
+        alert('Gagal memuat data untuk diedit.');
+    }
+}
+
+function deleteData() {
+    try {
+        const selectedData = document.querySelector('input[name="selectPenduduk"]:checked');
+        if (!selectedData) {
+            alert('Silakan pilih data yang ingin dihapus.');
+            return;
+        }
+
+        const index = parseInt(selectedData.value);
+        if (isNaN(index) || index < 0 || index >= data.length) {
+            alert('Data yang dipilih tidak valid.');
+            return;
+        }
+
+        const dataEntry = JSON.parse(data[index]);
+        const nik = String(dataEntry.nik);
+        const desaID = dataEntry.desa;
+        const scriptURL = scriptURLs[desaID];
+
+        if (!nik) {
+            alert('NIK tidak ditemukan pada data yang dipilih.');
+            return;
+        }
+
+        if (!scriptURL) {
+            alert('URL untuk desa tidak ditemukan.');
+            return;
+        }
+
+        if (!confirm(`Apakah Anda yakin ingin menghapus data untuk ${dataEntry.nama} (NIK: ${nik})?`)) {
+            return;
+        }
+
+        console.log('Mengirim permintaan hapus untuk NIK:', nik, 'dari desa:', desaID);
+
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'delete', nik: nik })
+        })
+        .then(() => {
+            console.log('Permintaan hapus terkirim untuk NIK:', nik);
+            data.splice(index, 1);
+            localStorage.setItem('pendudukData', JSON.stringify(data));
+            populateTable();
+            localStorage.removeItem('selectedPendudukData');
+            alert('Data berhasil dihapus dari tabel lokal dan Google Sheet.');
+        })
+        .catch(error => {
+            console.error('Error saat mengirim permintaan hapus:', error);
+            data.splice(index, 1);
+            localStorage.setItem('pendudukData', JSON.stringify(data));
+            localStorage.removeItem('selectedPendudukData');
+            populateTable();
+            alert('Gagal mengirim permintaan hapus ke server, tetapi data telah dihapus dari tabel lokal. Silakan periksa Google Sheet untuk memastikan penghapusan.');
+        });
+    } catch (error) {
+        console.error('Error di deleteData:', error);
+        alert('Gagal menghapus data. Silakan coba lagi.');
+    }
+}
+
+function addToLocalJSON(dataEntry) {
+    data.push(JSON.stringify(dataEntry));
+}
+
+function saveToLocalStorage() {
+    try {
+        localStorage.setItem('pendudukData', JSON.stringify(data));
+        console.log('Saved to localStorage:', data);
+    } catch (error) {
+        console.error('Error saving to localStorage:', error);
+    }
+}
+
+function ambilCell() {
+    try {
+        const tabel = document.getElementById("data-table");
+        if (tabel && tabel.rows.length > 1) {
+            const Tf_kode = tabel.rows[1].cells[1]?.innerText || "Data tidak ada";
+            const Tf_kk = tabel.rows[1].cells[2]?.innerText || "Data tidak ada";
+            const Tf_dusun = tabel.rows[1].cells[10]?.innerText || "Data tidak ada";
+            const Tf_desa = tabel.rows[1].cells[11]?.innerText || "Data tidak ada";
+
+            document.getElementById('kode').value = Tf_kode;
+            document.getElementById("kk").value = Tf_kk;
+            document.getElementById("alamatDusun").value = Tf_dusun;
+
+            const desaSelect = document.getElementById("desa");
+            const optionToSelect = Array.from(desaSelect.options).find(option =>
+                option.value.toLowerCase().replace(/\s+/g, '') === Tf_desa.toLowerCase().replace(/\s+/g, '')
+            );
+
+            if (optionToSelect) {
+                desaSelect.value = optionToSelect.value;
+            } else {
+                desaSelect.selectedIndex = 0;
+            }
+        }
+    } catch (error) {
+        console.error('Error in ambilCell:', error);
+    }
+}
+
+function generateSurat(jenisSurat) {
+    try {
+        const selectedData = document.querySelector('input[name="selectPenduduk"]:checked');
+        if (!selectedData) {
+            alert('Data Keluarga belum dipilih.');
+            return;
+        }
+
+        const dataPenduduk = JSON.parse(data[selectedData.value]);
+
+        if (jenisSurat === 'Suket Telah Menikah' && dataPenduduk.status !== 'Kepala Keluarga') {
+            document.getElementById('popupKonfirmasi').style.display = 'block';
+            document.getElementById('popupBackground').style.display = 'block';
+            window.tempSuratData = { jenisSurat, dataPenduduk };
+            return;
+        } else if (jenisSurat === 'Suket Cerai' && dataPenduduk.status !== 'Kepala Keluarga') {
+            document.getElementById('popupKonfirmasi').style.display = 'block';
+            document.getElementById('popupBackground').style.display = 'block';
+            window.tempSuratData = { jenisSurat, dataPenduduk };
+            return;
+        }
+
+        lanjutkanProsesSurat(jenisSurat, dataPenduduk);
+    } catch (error) {
+        console.error('Error in generateSurat:', error);
+        alert('Gagal memproses surat. Silakan coba lagi.');
+    }
+}
+
+function lanjutkanProsesSurat(jenisSurat, dataPenduduk) {
+    try {
+        const selectedCheckboxes = Array.from(infoContainer.querySelectorAll('.select-row:checked'));
+        const checkedData = selectedCheckboxes.map(checkbox => {
+            const row = checkbox.closest('tr');
+            const index = Array.from(infoContainer.querySelectorAll('tr')).indexOf(row);
+            return JSON.parse(data[index]);
+        });
+
+        const combinedData = {
+            selected: dataPenduduk,
+            checked: checkedData
+        };
+
+        const suratUrl = suratLinks[jenisSurat];
+        window.location.href = `${suratUrl}?data=${encodeURIComponent(JSON.stringify(combinedData))}`;
+    } catch (error) {
+        console.error('Error in lanjutkanProsesSurat:', error);
+        alert('Gagal menuju halaman surat. Silakan coba lagi.');
+    }
+}
+
+function lanjutkan() {
+    try {
+        const { jenisSurat, dataPenduduk } = window.tempSuratData;
+        lanjutkanProsesSurat(jenisSurat, dataPenduduk);
+        document.getElementById('popupKonfirmasi').style.display = 'none';
+        document.getElementById('popupBackground').style.display = 'none';
+    } catch (error) {
+        console.error('Error in lanjutkan:', error);
+        alert('Gagal melanjutkan proses. Silakan coba lagi.');
+    }
+}
+
+function batal() {
+    document.getElementById('popupKonfirmasi').style.display = 'none';
+    document.getElementById('popupBackground').style.display = 'none';
+}
+
+function selectPenduduk(index) {
+    try {
+        const rows = infoContainer.querySelectorAll('tr');
+        rows.forEach((row, i) => {
+            row.classList.remove('selected');
+            const checkbox = row.querySelector('.select-row');
+            if (checkbox) {
+                checkbox.checked = false;
+            }
+        });
+
+        const selectedRow = rows[index];
+        selectedRow.classList.toggle('selected');
+
+        const radio = selectedRow.querySelector('input[name="selectPenduduk"]');
+        if (radio) {
+            radio.checked = true;
+
+            const checkboxes = infoContainer.querySelectorAll('.select-row');
+            checkboxes.forEach((checkbox, i) => {
+                if (i !== index) {
+                    checkbox.checked = true;
+                } else {
+                    checkbox.checked = false;
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error in selectPenduduk:', error);
+    }
+}
+
+function formatDate(date) {
+    try {
+        const options = { day: '2-digit', month: 'long', year: 'numeric' };
+        return new Date(date).toLocaleDateString('id-ID', options);
+    } catch (error) {
+        console.error('Error formatting date:', date, error);
+        return date || '';
+    }
+}
+
+
+
+ // Fungsi untuk tombol "Back"
+        function goBack() {
+            window.history.back();
+        }
+		
+		
+window.onload = async function() {
+    try {
+        await syncData();
+        ambilCell();
+        document.getElementById("info-container").addEventListener("click", ambilCell);
+    } catch (error) {
+        console.error('Error on page load:', error);
+        infoContainer.innerHTML = '<tr><td colspan="13">Gagal memuat halaman. Silakan refresh.</td></tr>';
+    }
+};
+
+function formatDateInput(input) {
+    try {
+        const date = new Date(input);
+        if (isNaN(date.getTime())) return input;
+
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    } catch (error) {
+        console.error("Gagal format tgl input:", input, error);
+        return input;
+    }
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    flatpickr("#tglLahir", {
+        dateFormat: "d/m/Y",
+        maxDate: "today"
+    });
+</body>
+</html>

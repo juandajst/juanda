@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tampilkan Data Penduduk dengan Pagination dan Pencarian</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <style>
+        /* Styling untuk body */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #ecf0f1;
+    font-size: 1vw;
+}
+
+/* Styling untuk header */
+header {
+    background-color: #1c2d3d;
+    color: white;
+    padding: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Styling untuk elemen di dalam header */
+.header-left, .header-center, .header-right {
+    display: flex;
+    align-items: center;
+}
+
+/* Styling spesifik untuk bagian kiri (header-left) */
+.header-left {
+    flex: 1;
+}
+
+.header-left button {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-right: 15px;
+    transition: background-color 0.3s;
+}
+
+.header-left button:hover {
+    background-color: #c0392b;
+}
+
+.header-left h2 {
+	color: #a8a8a8;
+    font-size: 1.5rem;
+    margin: 0;
+	margin-left: 25px;
+}
+
+/* Styling spesifik untuk bagian tengah (header-center) */
+.header-center {
+    flex: 2;
+    justify-content: center;
+	margin-right: 80px; /* Geser ke kiri dengan menambah jarak dari kanan */
+}
+
+.header-center select, .header-center input {
+    padding: 8px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.header-center button {
+    background: linear-gradient(90deg, #E83F25, #EA7300); /* Gradasi oranye ke peach */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+	margin-left: 15px;
+	
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.header-center button:hover {
+    background: linear-gradient(90deg, #e66b50, #e89f6a); /* Gradasi lebih gelap saat hover */
+    transform: scale(1.05); /* Efek zoom saat hover */
+}
+
+/* Styling spesifik untuk bagian kanan (header-right) */
+.header-right {
+    flex: 1;
+    justify-content: flex-end;
+}
+
+.header-right button {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 10px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    transition: background-color 0.3s;
+}
+
+.header-right button:hover {
+    background-color: #27ae60;
+}
+
+/* Styling untuk main content */
+main {
+    width: 100%;
+    margin-top: 60px;
+    padding: 10px;
+}
+
+/* Styling untuk tabel */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background-color: #39434d;
+    color: white;
+}
+
+/* Efek hover untuk baris tabel */
+table tbody tr:hover {
+    background-color: #ebe8d5; /* Biru muda saat dihover */
+    cursor: pointer;
+    /*transform: scale(1.02); Sedikit memperbesar baris saat hover */
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out; /* Transisi halus */
+}
+
+/* Gaya untuk baris yang dipilih */
+table tbody tr.selected {
+    background-color: #b2f7b2; /* Hijau muda untuk baris yang dipilih */
+    color: #2c3e50; /* Warna teks lebih gelap */
+    font-weight: bold;
+    transition: background-color 0.3s ease-in-out; /* Transisi warna latar belakang */
+}
+
+/* Responsif untuk perangkat kecil */
+@media (max-width: 768px) {
+    table, th, td {
+        font-size: 0.9em; /* Sesuaikan ukuran font untuk layar kecil */
+    }
+}
+
+
+
+
+/* Styling untuk pagination */
+.pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+	
+}
+
+.pagination button {
+    margin: 0 5px;
+    padding: 5px 10px;
+	cursor: pointer;
+}
+
+/* Styling untuk progress bar */
+#progress {
+    width: 100%;
+    height: 10px;
+    background: #ddd;
+    display: none;
+    margin-top: 5px;
+}
+
+#progress-bar {
+    height: 80%;
+    width: 5px;
+    background: linear-gradient(90deg, #FF5733, #FFC107); /* Gradasi oranye ke kuning */
+    transition: width 0.3s ease-in-out; /* Animasi halus */
+    border-radius: 5px; /* Sudut membulat */
+}
+
+
+
+
+
+
+/*======================================================================
+ Styling untuk popup form */
+.form-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #f7f7f7;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    padding: 25px;
+    width: 400px;
+}
+
+.form-popup input[type="text"],
+.form-popup input[type="date"],
+.form-popup input[type="email"],
+.form-popup input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+
+#btn-simpanPP {
+    background-color: #47b33b; /* Warna latar kuning kehijauan */
+    color: #fff; /* Warna teks putih untuk kontras */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px; /* Membulatkan sudut tombol */
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Bayangan untuk efek 3D */
+    transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.2s ease; /* Transisi halus */
+}
+
+/* Hover effect untuk tombol "Simpan" */
+#btn-simpanPP:hover {
+    background-color: #58d94a; /* Warna lebih gelap saat hover */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* Perbesar bayangan saat hover */
+}
+
+/* Zoom effect saat di-klik untuk tombol "Simpan" */
+#btn-simpanPP:active {
+    transform: scale(0.95); /* Sedikit mengecil saat di-klik */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Perkecil bayangan saat di-klik */
+}
+
+#btn-batalPP {
+    background-color: #5e5e5e; /* Warna latar abu-abu */
+    color: #fff; /* Warna teks putih untuk kontras */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px; /* Membulatkan sudut tombol */
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Bayangan untuk efek 3D */
+    transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.2s ease; /* Transisi halus */
+}
+
+/* Hover effect untuk tombol "Tutup" */
+#btn-batalPP:hover {
+    background-color: #4a4a4a; /* Warna lebih gelap saat hover */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* Perbesar bayangan saat hover */
+}
+
+/* Zoom effect saat di-klik untuk tombol "Tutup" */
+#btn-batalPP:active {
+    transform: scale(0.95); /* Sedikit mengecil saat di-klik */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Perkecil bayangan saat di-klik */
+}
+
+
+
+
+/*======================================================== Popup untuk menampilkan data yang dipilih */
+.data-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    padding: 20px;
+    width: 500px;
+}
+
+.data-popup table {
+    width: 100%;
+}
+
+.data-popup th, .data-popup td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+	
+
+/* Responsivitas */
+@media (max-width: 768px) {
+    .header-left, .header-center, .header-right {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .header-left, .header-right {
+        margin-bottom: 10px;
+    }
+
+    header {
+        flex-direction: column;
+    }
+
+    .header-center {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .header-center select, .header-center input {
+        width: 90%;
+    }
+
+}
+
+
+
+#btn-back {
+    margin-left: 50px; /* Geser ke kiri dengan menambah jarak dari elemen kanan */
+}
+
+
+    </style>
+</head>
+<body>
+
+<header>
+<div class="header-left">
+	<img src="surat/1/back.png" id="btn-back" alt="Kembali" class="ico3" width="30" height="30" style="cursor: pointer" onclick="goBack('dasboard.html')">
+	    <h2>DATABASE</h2>
+</div>
+	<div class="header-center">
+    <select id="functionSelect" onchange="executeFunction()">
+        <option value="">Pilih Gampong</option>
+        <option value="ABEUK JALOH">ABEUK JALOH</option>
+		<option value="ALUE BAYEU UTANG">ALUE BAYEU UTANG</option>
+		<option value="ALUE BIE PUSONG">ALUE BIE PUSONG</option>
+		<option value="ALUE BUYA">ALUE BUYA</option>
+		<option value="ALUE BUYA PASI">ALUE BUYA PASI</option>
+		<option value="ALUE KUTA">ALUE KUTA</option>
+		<option value="BADA BARAT">BADA BARAT</option>
+		<option value="BADA TIMU">BADA TIMU</option>
+		<option value="BARAT LANYAN">BARAT LANYAN</option>
+		<option value="BUGAK BLANG">BUGAK BLANG</option>
+		<option value="BUGAK KRUENG">BUGAK KRUENG</option>
+		<option value="BUGAK KRUENG MATE">BUGAK KRUENG MATE</option>
+		<option value="BUGAK MESJID">BUGAK MESJID</option>
+		<option value="BUGENG">BUGENG</option>
+		<option value="GAMPONG MEULINTEUNG">GAMPONG MEULINTEUNG</option>
+		<option value="GEUNDOT">GEUNDOT</option>
+		<option value="JANGKA ALUE">JANGKA ALUE</option>
+		<option value="JANGKA ALUE BLE">JANGKA ALUE BLE</option>
+		<option value="JANGKA ALUE U">JANGKA ALUE U</option>
+		<option value="JANGKA KEUTAPANG">JANGKA KEUTAPANG</option>
+		<option value="JANGKA MESJID">JANGKA MESJID</option>
+		<option value="KAMBUK">KAMBUK</option>
+		<option value="KUALA CEURAPE">KUALA CEURAPE</option>
+		<option value="LAMKUTA">LAMKUTA</option>
+		<option value="LAMPOH RAYEUK">LAMPOH RAYEUK</option>
+		<option value="LHOK BUGENG">LHOK BUGENG</option>
+		<option value="LINGGONG">LINGGONG</option>
+		<option value="LUENG">LUENG</option>
+		<option value="MEUNASAH KRUENG">MEUNASAH KRUENG</option>
+		<option value="PANTE PAKU">PANTE PAKU</option>
+		<option value="PANTE PEUSANGAN">PANTE PEUSANGAN</option>
+		<option value="PANTE RANUB">PANTE RANUB</option>
+		<option value="PANTE SUKON">PANTE SUKON</option>
+		<option value="PAYA BIENG">PAYA BIENG</option>
+		<option value="PULO BLANG">PULO BLANG</option>
+		<option value="PULO IBOH">PULO IBOH</option>
+		<option value="PULO REUDEUP">PULO REUDEUP</option>
+		<option value="PULO SEUNA">PULO SEUNA</option>
+		<option value="PULO U">PULO U</option>
+		<option value="PUNJOT">PUNJOT</option>
+		<option value="PULO PINEUNG MNS DUA">PULO PINEUNG MNS DUA</option>
+		<option value="RUSEB ARA">RUSEB ARA</option>
+		<option value="RUSEB DAYAH">RUSEB DAYAH</option>
+		<option value="TANJUNGAN">TANJUNGAN</option>
+		<option value="TANOH ANOE">TANOH ANOE</option>
+		<option value="ULEU CEUE">ULEU CEUE</option>
+
+    </select>
+
+
+    <input type="text" id="search" placeholder="Cari nama..." />
+    <button onclick="showSelectedData()">PROSESS</button>
+	</div>
+	<div class="header-right">
+    <button onclick="toggleForm()">📝</button>
+	<button onclick="editSelectedData()">✏️</button>
+	</div>
+</header>
+
+<main>
+    <div id="progress">
+        <div id="progress-bar"></div>
+    </div>
+
+    <table id="data-table">
+        <thead>
+            <tr>
+                <th>Kode</th>
+                <th>KK</th>
+                <th>NIK</th>
+                <th>Nama</th>
+                <th>Tempat Lahir</th>
+                <th>Tanggal Lahir</th>
+                <th>Status</th>
+                <th>Gender</th>
+                <th>Pekerjaan</th>
+                <th>Alamat Dusun</th>
+                <th>Desa</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="data-body">
+            <!-- Data akan ditambahkan di sini -->
+        </tbody>
+    </table>
+
+    <div class="pagination" id="pagination">
+        <button onclick="changePage('prev')">BACK</button>
+        <span id="page-numbers"></span>
+        <button onclick="changePage('next')">NEXT</button>
+    </div>
+</main>
+
+<!-- Form Popup -->
+<div class="form-popup" id="form-popup">
+    <h3>Entri Data Penduduk</h3>
+    <input type="text" id="kk" placeholder="KK" required />
+    <input type="text" id="nik" placeholder="NIK" required />
+    <input type="text" id="nama" placeholder="Nama" required />
+    <input type="text" id="tempatlahir" placeholder="Tempat Lahir" required />
+    <input type="text" id="tgllahir" placeholder="dd/mm/yyyy" required />
+    <input type="text" id="status" placeholder="Status" required />
+    <input type="text" id="jeniskelamin" placeholder="Jenis Kelamin" required />
+    <input type="text" id="pekerjaan" placeholder="Pekerjaan" required />
+    <input type="text" id="alamatdusun" placeholder="Alamat Dusun" required />
+    <input type="text" id="desa" placeholder="Desa" required />
+    <button id="btn-simpanPP" onclick="addData()">Simpan</button>
+    <button id="btn-batalPP" onclick="toggleForm()">Tutup</button>
+</div>
+
+<!-- Popup untuk menampilkan data yang dipilih -->
+<div class="data-popup" id="data-popup">
+    <h3>Data Penduduk Terpilih</h3>
+    <table>
+        <tr>
+            <th>Kode</th>
+            <th>KK</th>
+            <th>NIK</th>
+            <th>Nama</th>
+            <th>Tempat Lahir</th>
+            <th>Tanggal Lahir</th>
+            <th>Status</th>
+            <th>Gender</th>
+            <th>Pekerjaan</th>
+            <th>Alamat Dusun</th>
+            <th>Desa</th>
+        </tr>
+        <tbody id="selected-data-body">
+            <!-- Data yang dipilih akan ditampilkan di sini -->
+        </tbody>
+    </table>
+    <button onclick="closeDataPopup()">Tutup</button>
+    <button onclick="continueToNextPage()">LANJUT</button> <!-- Tombol LANJUT ditambahkan -->
+</div>
+
+<script>
+	let isEditMode = false;
+    let currentPage = 1;
+const rowsPerPage = 10;
+let data = [];
+let filteredData = [];
+let selectedRowData = null;
+
+// Fungsi untuk memanggil API berdasarkan pilihan combobox
+function executeFunction() {
+    const selectedDesa = document.getElementById("functionSelect").value;
+    const url = getDesaUrl(selectedDesa);
+    if (url) {
+        fetchDataFromUrl(url);
+    } else {
+        alert("URL untuk desa ini belum tersedia");
+    }
+}
+
+
+
+
+function getDesaUrl(namaDesa) {
+    const baseUrls = {
+        "ABEUK JALOH": "https://script.google.com/macros/s/AKfycbwGOX0Nmo4v_iDrNQXuRbo-eDrGSLRV2aSkxvzXZKOxfMhErAMaU4jiUMeUX2RhQq8PTw/exec",
+        "ALUE BAYEU UTANG": "https://script.google.com/macros/s/AKfycbximJwWq75rQ0Uel9QbfrwL2OusQLmEUu7QYgGxT3YvmsiwNlRVd1DKw0O37nd0xxJJ/exec",
+        "ALUE BIE PUSONG": "https://script.google.com/macros/s/AKfycbwg2wobqxLNA4uxM2iRVnrsH38NZTxXeVcNZQdzXDGbdAvggoWPcIMEIOb671HfdkHq/exec",
+        "ALUE BUYA": "https://script.google.com/macros/s/AKfycbzdnXjatnJpr9ArJZLpHZjaitOlCd2V4IJL7-8xnDu5bT073Zv8EZ-KgQtSX2CHEVCI/exec",
+        "ALUE BUYA PASI": "https://script.google.com/macros/s/AKfycbzhD5BDaOlyFDvExlLihoLMNeDpKlXVcdl4ZFUbyAuDenRp4OkV8EYbxDwRUBKHTaY/exec",
+        "ALUE KUTA": "https://script.google.com/macros/s/AKfycbxo4u5jNB7KEKHHklRxQ_y20rHx06atHfANljkhguw7_yMnz-Tf79--ZdWAMDcHIgL4/exec",
+        "BUGAK KRUENG": "https://script.google.com/macros/s/AKfycbz-bSBpsBVG6CzLmTiz3qH9DVDi8DYdX07ug6DOUV01XH_FpmFZJRNzEkphHICGn9wNyg/exec"
+        // Tambahkan semua desa lainnya di sini
+    };
+    return baseUrls[namaDesa];
+}
+
+
+const scriptURLs = {
+    "ABEUK JALOH": "https://script.google.com/macros/s/AKfycbwGOX0Nmo4v_iDrNQXuRbo-eDrGSLRV2aSkxvzXZKOxfMhErAMaU4jiUMeUX2RhQq8PTw/exec",
+    "ALUE BAYEU UTANG": "https://script.google.com/macros/s/AKfycbximJwWq75rQ0Uel9QbfrwL2OusQLmEUu7QYgGxT3YvmsiwNlRVd1DKw0O37nd0xxJJ/exec",
+    "ALUE BIE PUSONG": "https://script.google.com/macros/s/AKfycbwg2wobqxLNA4uxM2iRVnrsH38NZTxXeVcNZQdzXDGbdAvggoWPcIMEIOb671HfdkHq/exec",
+    "ALUE BUYA": "https://script.google.com/macros/s/AKfycbzdnXjatnJpr9ArJZLpHZjaitOlCd2V4IJL7-8xnDu5bT073Zv8EZ-KgQtSX2CHEVCI/exec",
+    "ALUE BUYA PASI": "https://script.google.com/macros/s/AKfycbzhD5BDaOlyFDvExlLihoLMNeDpKlXVcdl4ZFUbyAuDenRp4OkV8EYbxDwRUBKHTaY/exec",
+    "ALUE KUTA": "https://script.google.com/macros/s/AKfycbxo4u5jNB7KEKHHklRxQ_y20rHx06atHfANljkhguw7_yMnz-Tf79--ZdWAMDcHIgL4/exec",
+    "BUGAK KRUENG": "https://script.google.com/macros/s/AKfycbz-bSBpsBVG6CzLmTiz3qH9DVDi8DYdX07ug6DOUV01XH_FpmFZJRNzEkphHICGn9wNyg/exec"
+    // Tambahkan desa lainnya sesuai kebutuhan
+};
+
+
+
+// Tambahkan fungsi lain (function7 hingga function46) jika diperlukan
+
+async function fetchDataFromUrl(url) {
+    document.getElementById('progress').style.display = 'block';
+    const progressBar = document.getElementById('progress-bar');
+    progressBar.style.width = '0%';
+
+    let progress = 1;
+    const interval = setInterval(() => {
+        progressBar.style.width = progress + '%';
+        if (progress >= 100) {
+            clearInterval(interval);
+        } else {
+            progress++;
+        }
+    }, 10);
+
+    try {
+        const response = await fetch(url);
+        data = await response.json();
+        filteredData = data.data || data; // Sesuaikan dengan struktur respons API
+        displayData();
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        alert('Gagal memuat data dari server.');
+    } finally {
+        clearInterval(interval);
+        document.getElementById('progress').style.display = 'none';
+    }
+
+    document.getElementById('search').value = '';
+    document.getElementById('search').focus();
+}
+
+function displayData() {
+    const tbody = document.getElementById('data-body');
+    tbody.innerHTML = '';
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = Math.min(startIndex + rowsPerPage, filteredData.length);
+
+    for (let i = startIndex; i < endIndex; i++) {
+        const item = filteredData[i];
+        const row = `<tr onclick="selectRow(this)">
+            <td>${item.kode || ''}</td>
+            <td>${item.kk || ''}</td>
+            <td>${item.nik || ''}</td>
+            <td>${item.nama || ''}</td>
+            <td>${item.tempatlahir || ''}</td>
+            <td>${formatDate(item.tgllahir) || ''}</td>
+            <td>${item.status || ''}</td>
+            <td>${item.jeniskelamin || ''}</td>
+            <td>${item.pekerjaan || ''}</td>
+            <td>${item.alamatdusun || ''}</td>
+            <td>${item.desa || ''}</td>
+            <td>Aksi</td>
+        </tr>`;
+        tbody.innerHTML += row;
+    }
+
+    setupPagination();
+}
+
+
+function isValidDateFormat(dateStr) {
+    return /^\d{2}\/\d{2}\/\d{4}$/.test(dateStr);
+}
+
+
+function selectRow(row) {
+    const allRows = document.querySelectorAll('#data-body tr');
+    allRows.forEach(r => r.classList.remove('selected'));
+    row.classList.add('selected');
+    selectedRowData = Array.from(row.children).map(cell => cell.textContent);
+}
+
+function setupPagination() {
+    const pagination = document.getElementById('page-numbers');
+    pagination.innerHTML = '';
+    const pageCount = Math.ceil(filteredData.length / rowsPerPage);
+
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(pageCount, startPage + 4);
+
+    for (let i = startPage; i <= endPage; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.innerText = i;
+        pageButton.onclick = () => changePage(i);
+        pagination.appendChild(pageButton);
+    }
+}
+
+function changePage(direction) {
+    const pageCount = Math.ceil(filteredData.length / rowsPerPage);
+
+    if (direction === 'prev' && currentPage > 1) {
+        currentPage--;
+    } else if (direction === 'next' && currentPage < pageCount) {
+        currentPage++;
+    } else if (typeof direction === 'number') {
+        currentPage = direction;
+    }
+
+    displayData();
+}
+
+document.getElementById('search').addEventListener('input', function () {
+    const searchTerm = this.value.toLowerCase();
+    filteredData = data.filter(item => item.nama.toLowerCase().includes(searchTerm));
+    currentPage = 1;
+    displayData();
+});
+
+function toggleForm() {
+    const formPopup = document.getElementById('form-popup');
+    const isVisible = formPopup.style.display === 'block';
+
+    if (isVisible) {
+        formPopup.style.display = 'none';
+        isEditMode = false;
+    } else {
+        formPopup.style.display = 'block';
+
+        const simpanBtn = document.getElementById("btn-simpanPP");
+        simpanBtn.onclick = isEditMode ? updateData : addData;
+    }
+}
+
+
+function goBack() {
+    window.history.back();
+}
+
+function formatDate(dateString) {
+    try {
+        const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        return new Date(dateString).toLocaleDateString('id-ID', options);
+    } catch (error) {
+        console.error('Error formatting date:', dateString, error);
+        return dateString;
+    }
+}
+
+function showSelectedData() {
+    if (!selectedRowData) {
+        alert('Silakan pilih baris terlebih dahulu.');
+        return;
+    }
+
+    const selectedKK = selectedRowData[1];
+    const relatedData = data.filter(item => item.kk === selectedKK);
+
+    try {
+        localStorage.setItem('selectedPendudukData', JSON.stringify(relatedData));
+        console.log('Data saved to localStorage:', relatedData);
+        window.location.href = 'menu_surat.html';
+		
+		const selectedFunction = document.getElementById("functionSelect").value;
+		localStorage.setItem("selectedFunction", selectedFunction);
+
+
+    } catch (error) {
+        console.error('Error saving to localStorage:', error);
+        alert('Gagal menyimpan data. Silakan coba lagi.');
+    }
+}
+
+
+function addData() {
+    // Validasi format tanggal
+    const tglLahir = document.getElementById("tgllahir").value;
+    const isValidDateFormat = /^\d{2}\/\d{2}\/\d{4}$/.test(tglLahir);
+    if (!isValidDateFormat) {
+        alert("Format tanggal lahir harus dd/mm/yyyy");
+        return; // Stop kalau format salah
+    }
+
+    const desaTerpilih = document.getElementById("functionSelect").value;
+    const scriptURL = scriptURLs[desaTerpilih];
+
+    if (!scriptURL) {
+        alert("URL untuk desa belum ditentukan!");
+        return;
+    }
+
+    const dataPenduduk = {
+    kk: document.getElementById("kk").value,
+    nik: document.getElementById("nik").value,
+    nama: document.getElementById("nama").value,
+    tempatlahir: document.getElementById("tempatlahir").value,
+    tgllahir: tglLahir,
+    status: document.getElementById("status").value,
+    jeniskelamin: document.getElementById("jeniskelamin").value,
+    pekerjaan: document.getElementById("pekerjaan").value,
+    alamatdusun: document.getElementById("alamatdusun").value,
+    desa: desaTerpilih
+};
+
+
+    fetch(scriptURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dataPenduduk)
+    })
+    .then(async response => {
+    const result = await response.text();
+    console.log("RESPON DARI SERVER:", result);
+    if (response.ok) {
+        alert("Berhasil: " + result);
+    } else {
+        alert("Gagal: " + result);
+    }
+    toggleForm();
+    executeFunction();
+})
+.catch(error => {
+    console.error("Gagal mengirim ke server:", error);
+    alert("Terjadi kesalahan saat mengirim ke server.");
+});
+
+}
+
+
+
+
+
+function editSelectedData() {
+    if (!selectedRowData) {
+        alert("Silakan pilih baris terlebih dahulu.");
+        return;
+    }
+
+    isEditMode = true; // masuk mode edit
+
+    document.getElementById("kk").value = selectedRowData[1];
+    document.getElementById("nik").value = selectedRowData[2];
+    document.getElementById("nama").value = selectedRowData[3];
+    document.getElementById("tempatlahir").value = selectedRowData[4];
+    document.getElementById("tgllahir").value = selectedRowData[5];
+    document.getElementById("status").value = selectedRowData[6];
+    document.getElementById("jeniskelamin").value = selectedRowData[7];
+    document.getElementById("pekerjaan").value = selectedRowData[8];
+    document.getElementById("alamatdusun").value = selectedRowData[9];
+    document.getElementById("desa").value = selectedRowData[10];
+
+    toggleForm(); // tampilkan popup
+}
+
+
+
+function updateData() {
+    const desaTerpilih = document.getElementById("functionSelect").value;
+    const scriptURL = scriptURLs[desaTerpilih];
+
+    if (!scriptURL) {
+        alert("URL untuk desa belum ditentukan!");
+        return;
+    }
+
+    const dataPenduduk = {
+    method: "PUT", // ✅ agar dikenali di GAS
+    kode: selectedRowData ? selectedRowData[0] : "", // hanya kalau kamu mau kirim juga
+    nik: document.getElementById("nik").value,
+    kk: document.getElementById("kk").value,
+    nama: document.getElementById("nama").value,
+    tempatlahir: document.getElementById("tempatlahir").value,
+    tgllahir: document.getElementById("tgllahir").value,
+    status: document.getElementById("status").value,
+    jeniskelamin: document.getElementById("jeniskelamin").value,
+    pekerjaan: document.getElementById("pekerjaan").value,
+    alamatdusun: document.getElementById("alamatdusun").value,
+    desa: desaTerpilih
+};
+
+
+
+    fetch(scriptURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dataPenduduk)
+    })
+    .then(async response => {
+    const result = await response.text();
+    console.log("RESPON DARI SERVER:", result);
+    if (response.ok) {
+        alert("Berhasil: " + result);
+    } else {
+        alert("Gagal: " + result);
+    }
+    toggleForm();
+    executeFunction();
+})
+.catch(error => {
+    console.error("Gagal mengirim ke server:", error);
+    alert("Terjadi kesalahan saat mengirim ke server.");
+});
+
+}
+
+
+
+function closeDataPopup() {
+    document.getElementById('data-popup').style.display = 'none';
+}
+
+function continueToNextPage() {
+    if (!selectedRowData) {
+        alert('Silakan pilih baris terlebih dahulu.');
+        return;
+    }
+
+    const selectedKK = selectedRowData[1];
+    const relatedData = data.filter(item => item.kk === selectedKK);
+
+    try {
+        localStorage.setItem('selectedPendudukData', JSON.stringify(relatedData));
+        console.log('Data saved to localStorage:', relatedData);
+        window.location.href = 'menu_surat.html';
+		
+		const selectedFunction = document.getElementById("functionSelect").value;
+		localStorage.setItem("selectedFunction", selectedFunction);
+
+    } catch (error) {
+        console.error('Error saving to localStorage:', error);
+        alert('Gagal menyimpan data. Silakan coba lagi.');
+    }
+}
+
+
+
+window.onload = function() {
+    const savedFunction = localStorage.getItem("selectedFunction");
+    if (savedFunction) {
+        document.getElementById("functionSelect").value = savedFunction;
+        executeFunction();
+    }
+	
+
+};
+
+</script>
+</body>
+</html>
